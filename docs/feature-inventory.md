@@ -1,25 +1,27 @@
-# NewTRPG Obsidian 기능 분석 및 PWA 이식표
+# NewTRPG 기능 구현 현황
 
-기준 자료는 저장소 루트의 `rpg trpg.zip`을 `reference-unpacked/RPG`로 해제하여 확인했다. 핵심 자료는 `NewTRPG_PlayerSheet_v0.4.1_...md`, `NPC_...` 전투시트 폴더, `.obsidian/plugins/trpg-sheet-migrator`, `.obsidian/plugins/newtrpg-zip-manager`, 시나리오별 아이템/NPC Markdown이다.
+상태값은 `완료`, `부분 구현`, `미구현`, `보류`로 통일한다.
 
-| 기능명 | 기존 위치 | 앱 구현 파일 | 구현 상태 | 비고 |
-|---|---|---|---|---|
-| 플레이어 기본 시트/frontmatter | `RPG/NewTRPG_PlayerSheet_v0.4.1_...md` | `src/rules/newtrpg/schema.ts`, `src/main.tsx` | 1차 구현 | 필수 필드와 버전 정보 포함 |
-| 능력치 6종 및 보정 | 플레이어/NPC 시트 본문 | `src/rules/newtrpg/calculation.ts` | 1차 구현 | 기본/종족/직업/아이템/스킬/임시/지속효과/최종 |
-| 최대 HP 계산 | 플레이어 시트 계산 블록 | `src/rules/newtrpg/calculation.ts` | 구현 | 체력×10 + 보정 합산 |
-| 물리/정신/마법 공격 | 플레이어 시트 계산 블록 | `src/rules/newtrpg/calculation.ts` | 구현 | 광전사 HP 감소 보정 일부 포함 |
-| 종족 특수 규칙 | 시트 계산식/버튼 | `src/rules/newtrpg/calculation.ts` | 부분 구현 | 인간 난이도, 슬라임 외모, 용린 민첩 |
-| 난이도 목록 | 플레이어 시트 판정 섹션 | `src/rules/newtrpg/constants.ts` | 구현 | 요청 목록 기본값 반영 |
-| 일반 판정 | Meta Bind/JS 버튼 | `src/rules/newtrpg/judgement.ts` | 구현 | 자동성공, 대성공, 대실패 |
-| 상대 판정 | 시트 상대 다이스 섹션 | `src/rules/newtrpg/judgement.ts`, `src/main.tsx` | 구현 | NPC 선택은 1차 UI |
-| 커스텀 다이스 | 시트 다이스 버튼 | `src/rules/newtrpg/dice.ts` | 구현 | d6, +1d6, 3d10+5 등 |
-| 장비/아이템 문자열 | 아이템 Markdown frontmatter | `src/rules/newtrpg/items.ts` | 구현 | 쉼표/줄바꿈 효과 파싱 |
-| 스킬 구조 | 스킬/만다라 관련 노트 | `src/rules/newtrpg/skills.ts`, `src/main.tsx` | 부분 구현 | 고급효과 보존 필드 마련 |
-| 상태이상/지속효과 | 시트 상태 섹션 | `src/rules/newtrpg/effects.ts` | 부분 구현 | 턴 감소/임시 보정 제거 |
-| 경험치/등급 | 경험치 계산 노트 | `src/rules/newtrpg/experience.ts` | 구현 | F~EX 등급, 임무 위험도 |
-| NPC 전투시트 | `NPC_...` 폴더 Markdown | `src/rules/newtrpg/schema.ts`, `src/main.tsx` | 1차 구현 | 캐릭터 엔진 재사용 |
-| JSON 백업/복구 | zip-manager 플러그인 | `src/storage/indexedDb.ts`, `src/main.tsx` | 구현 | 전체/캐릭터 단위 |
-| Obsidian Markdown 가져오기/내보내기 | Markdown frontmatter | `src/main.tsx` | 부분 구현 | 단순 frontmatter 호환 |
-| 오프라인/PWA | Obsidian 앱 의존 | `vite.config.ts`, `public/icon.svg` | 구현 | Workbox 캐시/manifest |
-| 앱 업데이트 확인 | zip-manager versions | `src/pwa/update.ts` | 구현 | SW update 호출 |
-| 마이그레이션 | migrator 플러그인 | `src/storage/migrations.ts` | 1차 구현 | 원본 보존 정책 문서화 필요 |
+| 기능명 | 앱 구현 파일 | 구현 상태 | 비고 |
+|---|---|---|---|
+| 플레이어 시트 생성/수정/자동 저장 | `src/main.tsx`, `src/storage/indexedDb.ts` | 완료 | 생성 즉시 IndexedDB 저장, 입력 변경 저장, 저장 결과 표시 |
+| 필수 버전/시간 메타데이터 | `src/rules/newtrpg/schema.ts` | 완료 | id, createdAt, updatedAt, app/rules/storage/sheet version |
+| 캐릭터 선택/복제/삭제 | `src/main.tsx` | 완료 | 마지막 선택 캐릭터 localStorage 유지, 삭제 확인창 |
+| 전체 데이터 초기화 경고 | `src/main.tsx` | 완료 | 2단계 확인창 |
+| 모바일 탭 UI | `src/main.tsx`, `src/style.css` | 완료 | 권장 10개 탭, 좁은 화면 대응 |
+| 대시보드 HP/능력치/최근 결과 | `src/main.tsx` | 완료 | HP 큰 표시, 6대 능력치 카드 |
+| 온라인/오프라인 표시 | `src/main.tsx`, `src/pwa/update.ts` | 완료 | navigator online 이벤트 |
+| 일반 판정 | `src/rules/newtrpg/judgement.ts`, `src/main.tsx` | 완료 | 자동성공/대성공/대실패/상세 표시 |
+| 상대 판정 | `src/rules/newtrpg/judgement.ts`, `src/main.tsx` | 완료 | NPC와 다른 플레이어 캐릭터 대상, 동률 처리 |
+| 커스텀 다이스 | `src/rules/newtrpg/dice.ts`, `src/main.tsx` | 완료 | 복합식, +/- 다이스, 오류 안내 |
+| 효과 문자열 파싱 | `src/rules/newtrpg/items.ts` | 완료 | 쉼표/세미콜론/줄바꿈 복수 효과 |
+| 장비/아이템 추가/제거/효과 편집 | `src/main.tsx` | 완료 | 효과 편집 시 보너스 재계산 |
+| 전투 수치 계산 | `src/rules/newtrpg/calculation.ts` | 완료 | 물리/정신/마법/피해감소/최대HP |
+| NPC 전투시트 | `src/main.tsx`, `src/rules/newtrpg/schema.ts` | 부분 구현 | 생성/수정/삭제/피해/회복 완료, 상세 장비 UI는 플레이어 탭 중심 |
+| 피해/회복/전체 회복 | `src/main.tsx` | 완료 | 피해감소 계산 상세 메시지 |
+| 경험치와 성장 | `src/rules/newtrpg/experience.ts`, `src/main.tsx` | 완료 | 직접 경험치, 임무 위험도, 레벨업/다운, 등급 표시 |
+| 전체/캐릭터 백업과 복구 | `src/storage/indexedDb.ts`, `src/main.tsx` | 완료 | JSON 내보내기/붙여넣기 가져오기, 오류 처리 |
+| Obsidian Markdown 가져오기 | `src/main.tsx` | 부분 구현 | frontmatter 일부 필드만 안전 파싱 |
+| PWA 오프라인 캐시 | `vite.config.ts`, `public/manifest.webmanifest` | 완료 | `/Rpg-app/` base, navigate fallback, Workbox 캐시 |
+| 업데이트 안내 | `src/main.tsx`, `src/pwa/update.ts` | 완료 | 설정 탭 새 버전 안내 |
+| 계산 로직 테스트 | `src/rules/newtrpg/rules.test.ts` | 완료 | Vitest 대상 확대 |
