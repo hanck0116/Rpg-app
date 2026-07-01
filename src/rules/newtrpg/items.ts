@@ -3,7 +3,7 @@ import { STAT_NAMES, StatName } from './constants';
 
 export function parseEffectString(text = ''): EffectBonus {
   const bonus: EffectBonus = { stats: {} };
-  for (const raw of text.split(/[,\n]/)) {
+  for (const raw of text.split(/[,;\n]/)) {
     const m = raw.trim().match(/^(힘|민첩|체력|지능|지혜|외모|물리공격력|정신공격력|마법공격력|피해감소|최대HP|판정난이도|난이도)\s*([+-])\s*(\d+)/);
     if (!m) continue;
     const v = (m[2] === '-' ? -1 : 1) * Number(m[3]);
