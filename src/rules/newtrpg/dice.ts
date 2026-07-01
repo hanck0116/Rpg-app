@@ -1,0 +1,3 @@
+export type DiceResult={expression:string;rolls:number[];modifier:number;total:number};
+export function rollDie(sides:number,rng=Math.random){return Math.floor(rng()*sides)+1}
+export function rollExpression(expr:string,rng=Math.random):DiceResult{const m=expr.trim().match(/^([+-]?)(\d*)d(\d+)([+-]\d+)?$/i); if(!m) throw new Error('지원하지 않는 주사위 식입니다. 예: 2d6+3'); const sign=m[1]==='-'?-1:1; const count=Number(m[2]||1); const sides=Number(m[3]); const mod=Number(m[4]||0); if(count<1||count>100||sides<1) throw new Error('주사위 개수/면수가 올바르지 않습니다.'); const rolls=Array.from({length:count},()=>rollDie(sides,rng)*sign); return {expression:expr,rolls,modifier:mod,total:rolls.reduce((a,b)=>a+b,0)+mod};}
