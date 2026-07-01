@@ -1,0 +1,9 @@
+import { Character, Npc } from '../rules/newtrpg/schema';
+const DB='newtrpg-sheet-manager', VER=1; export const STORES=['characters','npcs','items','scenarios','settings','backups','rules'] as const;
+function openDb():Promise<IDBDatabase>{return new Promise((res,rej)=>{const r=indexedDB.open(DB,VER); r.onupgradeneeded=()=>{for(const s of STORES) if(!r.result.objectStoreNames.contains(s)) r.result.createObjectStore(s,{keyPath:'id'});}; r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);});}
+export async function put<T extends {id:string}>(store:string,value:T){const db=await openDb();return new Promise<void>((res,rej)=>{const tx=db.transaction(store,'readwrite'); tx.objectStore(store).put(value); tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error);});}
+export async function all<T>(store:string){const db=await openDb();return new Promise<T[]>((res,rej)=>{const r=db.transaction(store).objectStore(store).getAll(); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);});}
+export async function del(store:string,id:string){const db=await openDb();return new Promise<void>((res,rej)=>{const tx=db.transaction(store,'readwrite'); tx.objectStore(store).delete(id); tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error);});}
+export async function exportAll(){const data:Record<string,unknown>= {}; for(const s of STORES)data[s]=await all(s); return {exportedAt:new Date().toISOString(),data};}
+export async function importAll(payload:any){if(!payload?.data) throw new Error('백업 JSON 형식이 아닙니다.'); for(const s of STORES) for(const row of payload.data[s]??[]) await put(s,row);}
+export const saveCharacter=(c:Character)=>put('characters',{...c,lastSavedAt:new Date().toISOString()}); export const loadCharacters=()=>all<Character>('characters'); export const saveNpc=(n:Npc)=>put('npcs',n); export const loadNpcs=()=>all<Npc>('npcs');

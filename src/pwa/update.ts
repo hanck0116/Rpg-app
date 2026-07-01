@@ -1,0 +1,2 @@
+export function watchOnlineStatus(cb:(online:boolean)=>void){const f=()=>cb(navigator.onLine); addEventListener('online',f); addEventListener('offline',f); f(); return()=>{removeEventListener('online',f);removeEventListener('offline',f)}}
+export async function checkForUpdate(){const regs=await navigator.serviceWorker?.getRegistrations?.(); await Promise.all((regs??[]).map(r=>r.update())); return '업데이트 확인을 요청했습니다. 인터넷 연결 시 새 버전이 자동 캐시됩니다.';}

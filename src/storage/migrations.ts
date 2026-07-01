@@ -1,0 +1,2 @@
+import { Character } from '../rules/newtrpg/schema';import { APP_VERSION,RULES_VERSION,STORAGE_VERSION,SHEET_VERSION } from '../rules/newtrpg/constants';
+export function migrateCharacter(raw:any):Character{if(!raw?.id) throw new Error('캐릭터 ID가 없습니다.'); return {...raw,appVersion:APP_VERSION,rulesVersion:RULES_VERSION,storageVersion:STORAGE_VERSION,sheetVersion:SHEET_VERSION,effects:raw.effects??[],items:raw.items??[],equipment:raw.equipment??[],skills:raw.skills??[],conditions:raw.conditions??[]};}
